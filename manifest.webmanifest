@@ -1,0 +1,36 @@
+{
+  "id": "./",
+  "name": "African Apostolic In Sabbath Church International Youth Notes",
+  "short_name": "AASCI Youth Notes",
+  "description": "Offline secretary notes app for the Youth Ministry of African Apostolic In Sabbath Church International. Write meeting notes and export them as PDF or Word.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#14284B",
+  "categories": [
+    "productivity",
+    "education"
+  ],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
