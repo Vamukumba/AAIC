@@ -70,7 +70,7 @@ textarea{resize:none}
   <section class="panel" id="p-notes">
    <div id="secs"></div>
    <button class="btn gold" id="addSec" style="width:100%">+ Add Heading</button>
-   <p class="muted">Type a heading (e.g. Key Activities Done), then write each point on its own line. They are numbered 1, 2, 3 in the document.</p>
+   <p class="muted">Type a heading (e.g. Key Activities Done), then write your points, one per line. Start each line with your own number (1. 2. 3.) or bullet (- or •) if you want one. The document shows it exactly as you typed it.</p>
   </section>
   <section class="panel" id="p-pics">
    <input type="file" id="picFile" accept="image/*" multiple hidden>
@@ -91,7 +91,7 @@ textarea{resize:none}
   </section>
  </main>
  <div class="savebar" id="savebar"><button class="btn" onclick="save()">Save Notes</button><button class="btn ghost" onclick="newNote()">New Note</button></div>
- <nav class="bottom"><button id="nHome"> Home</button><button id="nExp">Export</button></nav>
+ <nav class="bottom"><button id="nHome">🏠 Home</button><button id="nExp">📤 Export</button></nav>
 </div>
 <div id="toast"></div>
 <div id="doc"></div>
@@ -135,7 +135,7 @@ function lvl(user){
  if(el){el.value=n.levelName;const f=()=>n.levelName=el.value;el.oninput=f;el.onchange=f;if(user)setTimeout(()=>el.focus(),60)}
 }
 /* notes sections */
-function secs(){$("secs").innerHTML=n.sections.map((s,i)=>`<div class="sec"><div class="sh"><b>Heading ${i+1}</b><button class="x" data-del="${i}">Remove</button></div><input data-h="${i}" placeholder="Heading e.g. Key Activities Done" value="${esc(s.h)}"><textarea data-t="${i}" placeholder="Write each point on a new line:&#10;Sports&#10;Athletics&#10;Food Competition">${esc(s.t)}</textarea></div>`).join("")}
+function secs(){$("secs").innerHTML=n.sections.map((s,i)=>`<div class="sec"><div class="sh"><b>Heading ${i+1}</b><button class="x" data-del="${i}">Remove</button></div><input data-h="${i}" placeholder="Heading e.g. Key Activities Done" value="${esc(s.h)}"><textarea data-t="${i}" placeholder="Type your points, one per line, with your own numbers or bullets:&#10;1. Sports&#10;2. Athletics&#10;3. Food Competition">${esc(s.t)}</textarea></div>`).join("")}
 $("secs").addEventListener("input",e=>{const d=e.target.dataset;if(d.h!==undefined)n.sections[+d.h].h=e.target.value;if(d.t!==undefined)n.sections[+d.t].t=e.target.value});
 $("secs").addEventListener("click",e=>{const i=e.target.dataset.del;if(i!==undefined){n.sections.splice(+i,1);if(!n.sections.length)n.sections.push({h:"",t:""});secs()}});
 $("addSec").onclick=()=>{n.sections.push({h:"",t:""});secs();setTimeout(()=>{const a=$("secs").querySelectorAll("input");a[a.length-1].focus()},60)};
@@ -163,8 +163,14 @@ function buildDoc(x){
  const val="padding:8px 12px;border:1px solid #cfc7b0;font-size:12pt;background:#faf8f2";
  const row=(a,b)=>b?`<tr><td style="${lab}">${a}</td><td style="${val}">${esc(b).replace(/\n/g,"<br>")}</td></tr>`:"";
  const secs=x.sections.filter(s=>s.h.trim()||s.t.trim()).map(s=>{
-  const it=s.t.split("\n").map(l=>l.replace(/^\s*(?:[-*•]|\d+[.)])\s+/,"").trim()).filter(Boolean);
-  return `<div style="margin-top:16px;page-break-inside:avoid"><div style="border-left:6px solid #b8903a;background:#f3efe3;padding:6px 12px;font-weight:bold;font-size:13pt;color:#14284b">${esc(s.h||"Notes")}</div><table style="width:100%;border-collapse:collapse;margin-top:4px">${it.map((l,i)=>`<tr><td style="width:34px;vertical-align:top;padding:5px 8px;color:#b8903a;font-weight:bold;font-size:12pt">${i+1}.</td><td style="padding:5px 8px;border-bottom:1px solid #e6e0cf;font-size:12pt;line-height:1.5">${esc(l)}</td></tr>`).join("")}</table></div>`}).join("");
+  const L=s.t.split("\n").map(l=>l.replace(/\s+$/,""));
+  while(L.length&&!L[0].trim())L.shift();while(L.length&&!L[L.length-1].trim())L.pop();
+  const rows=L.map(l=>{
+   if(!l.trim())return '<tr><td colspan="2" style="height:8px"></td></tr>';
+   const m=l.match(/^\s*((?:[-*•–]|\d+[.)]|[A-Za-z][.)])+)\s+(.*)$/);
+   return m?`<tr><td style="width:38px;vertical-align:top;padding:4px 8px;color:#b8903a;font-weight:bold;font-size:12pt">${esc(m[1])}</td><td style="padding:4px 8px;border-bottom:1px solid #e6e0cf;font-size:12pt;line-height:1.5">${esc(m[2])}</td></tr>`
+   :`<tr><td colspan="2" style="padding:4px 8px;border-bottom:1px solid #e6e0cf;font-size:12pt;line-height:1.5">${esc(l.trim())}</td></tr>`}).join("");
+  return `<div style="margin-top:16px;page-break-inside:avoid"><div style="border-left:6px solid #b8903a;background:#f3efe3;padding:6px 12px;font-weight:bold;font-size:13pt;color:#14284b">${esc(s.h||"Notes")}</div><table style="width:100%;border-collapse:collapse;margin-top:4px">${rows}</table></div>`}).join("");
  let pic="";
  if(x.pics.length){let r="";for(let i=0;i<x.pics.length;i+=2){r+='<tr style="page-break-inside:avoid">'+[x.pics[i],x.pics[i+1]].map(p=>p?`<td style="width:50%;padding:6px;text-align:center;vertical-align:top"><img src="${p.src}" width="270" style="width:270px;max-width:100%;border:1px solid #cfc7b0"><div style="font-size:9.5pt;color:#555;font-style:italic;margin-top:3px">${esc(p.cap)}</div></td>`:'<td style="width:50%"></td>').join("")+"</tr>"}
   pic=`<div style="margin-top:22px"><div style="background:#14284b;color:#fff;padding:7px 12px;font-weight:bold;font-size:12pt;letter-spacing:2px;page-break-after:avoid;break-after:avoid">PICTURES</div><table style="width:100%;border-collapse:collapse;margin-top:6px">${r}</table></div>`}
